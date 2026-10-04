@@ -18,4 +18,6 @@ const bookingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+bookingSchema.index({ listing: 1, status: 1, checkIn: 1, checkOut: 1 });
+
 export default mongoose.model('Booking', bookingSchema);
