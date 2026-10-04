@@ -68,6 +68,61 @@ export const getHostBookings = asyncHandler(async (req, res) => {
   res.json(bookings);
 });
 
+// GET /api/bookings/host/stats
+export const getHostStats = asyncHandler(async (req, res) => {
+  const myListings = await Listing.find({ host: req.user._id }).select('_id');
+  const listingIds = myListings.map((l) => l._id);
+
+  const now = new Date();
+  const next7Days = new Date(now.getTime() + 7 * MS_PER_DAY);
+
+  const [bookingStats, listingStats] = await Promise.all([
+    Booking.aggregate([
+      { $match: { listing: { $in: listingIds } } },
+      {
+        $group: {
+          _id: null,
+          totalEarnings: {
+            $sum: { $cond: [{ $eq: ['$status', 'completed'] }, '$totalPrice', 0] },
+          },
+          upcomingCheckIns: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ['$status', 'confirmed'] },
+                    { $gte: ['$checkIn', now] },
+                    { $lte: ['$checkIn', next7Days] },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          pendingRequests: {
+            $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] },
+          },
+        },
+      },
+    ]),
+    Listing.aggregate([
+      { $match: { host: req.user._id, reviewCount: { $gt: 0 } } },
+      { $group: { _id: null, avgRating: { $avg: '$avgRating' } } },
+    ]),
+  ]);
+
+  const stats = bookingStats[0] || {};
+  const avgRating = listingStats[0] ? Math.round(listingStats[0].avgRating * 10) / 10 : 0;
+
+  res.json({
+    totalEarnings: stats.totalEarnings || 0,
+    upcomingCheckIns: stats.upcomingCheckIns || 0,
+    pendingRequests: stats.pendingRequests || 0,
+    averageRating: avgRating,
+  });
+});
+
 // PATCH /api/bookings/:id/cancel (guest)
 export const cancelBooking = asyncHandler(async (req, res) => {
   const booking = await Booking.findById(req.params.id);
