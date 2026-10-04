@@ -15,7 +15,20 @@ export default function BookingBox({ listing }) {
   const total = nights * listing.pricePerNight;
   const set = (key) => (e) => setForm({ ...form, [key]: e.target.value });
 
-  // TODO: the date inputs allow past dates - set a `min` attribute (see issue tracker).
+  const toDateStr = (d) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+  const today = toDateStr(new Date());
+  const minCheckOut = (() => {
+    if (form.checkIn) {
+      const [y, m, d] = form.checkIn.split('-').map(Number);
+      return toDateStr(new Date(y, m - 1, d + 1));
+    }
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return toDateStr(d);
+  })();
+
   const book = async (e) => {
     e.preventDefault();
     if (!user) return navigate('/login', { state: { from: `/stays/${listing._id}` } });
@@ -44,11 +57,11 @@ export default function BookingBox({ listing }) {
       <div className="row">
         <label className="grow">
           Check-in
-          <input type="date" required value={form.checkIn} onChange={set('checkIn')} />
+          <input type="date" required min={today} value={form.checkIn} onChange={set('checkIn')} />
         </label>
         <label className="grow">
           Check-out
-          <input type="date" required value={form.checkOut} onChange={set('checkOut')} />
+          <input type="date" required min={minCheckOut} value={form.checkOut} onChange={set('checkOut')} />
         </label>
       </div>
       <label>
