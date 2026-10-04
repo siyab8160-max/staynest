@@ -79,6 +79,29 @@ label { display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; colo
 .success { color: var(--success); }
 .loader { text-align: center; color: var(--muted); padding: 40px; }
 
+.skeleton-card { pointer-events: none; }
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #f0e9df 25%, #e4dcd0 37%, #f0e9df 63%);
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+}
+.skeleton-image { aspect-ratio: 4 / 3; width: 100%; }
+.skeleton-line { height: 12px; border-radius: 999px; }
+.skeleton-tag { width: 60px; height: 18px; }
+.skeleton-rating { width: 45px; height: 14px; }
+.skeleton-title { width: 75%; height: 18px; margin-top: 4px; }
+.skeleton-location { width: 50%; height: 14px; }
+.skeleton-price { width: 40%; height: 16px; margin-top: 4px; }
+
+@keyframes skeleton-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer { animation: none; }
+}
+
 .hero-img { width: 100%; max-height: 460px; object-fit: cover; border-radius: var(--radius); margin: 16px 0; }
 .detail-layout { display: grid; grid-template-columns: 1fr 360px; gap: 40px; align-items: start; }
 .detail-layout h2 { text-transform: capitalize; }
