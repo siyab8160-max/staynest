@@ -119,11 +119,9 @@ export default function ListingForm() {
         <select value={form.type} onChange={set('type')}>
           {STAY_TYPES.map((t) => <option key={t}>{t}</option>)}
         </select>
-        <div className="grow">
-          <input required type="number" min="0" placeholder="Price per night (₹)" value={form.pricePerNight} onChange={set('pricePerNight')} onBlur={touch('pricePerNight')} />
-          {(touched.pricePerNight || form.pricePerNight !== '') && errors.pricePerNight && <p className="error small">{errors.pricePerNight}</p>}
-        </div>
+        <input required type="number" min="0" placeholder="Price per night (₹)" value={form.pricePerNight} onChange={set('pricePerNight')} onBlur={touch('pricePerNight')} />
       </div>
+      {(touched.pricePerNight || form.pricePerNight !== '') && errors.pricePerNight && <p className="error small">{errors.pricePerNight}</p>}
       <div className="row">
         <input required placeholder="City" value={form.city} onChange={set('city')} />
         <input required placeholder="State" value={form.state} onChange={set('state')} />
